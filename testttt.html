@@ -1,0 +1,4112 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+>
+
+<title>SPYCITY // NEURAL SURVEILLANCE GRID</title>
+
+<style>
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  -webkit-tap-highlight-color:transparent;
+}
+
+:root{
+  --cyan:#00f0ff;
+  --cyan-dim:#00f0ff55;
+  --green:#00ff9d;
+  --red:#ff2a4a;
+  --amber:#ffb800;
+  --bg:#02060c;
+  --panel:#060d16;
+  --border:#1a2e42;
+  --text:#c8e0f0;
+  --muted:#5a7a94;
+  --app-height:100vh;
+}
+
+html,
+body{
+  width:100%;
+  height:100%;
+  min-height:100%;
+  overflow:hidden;
+  background:#010408;
+  color:var(--text);
+  font-family:
+    'Segoe UI',
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+
+  user-select:none;
+  -webkit-user-select:none;
+  touch-action:manipulation;
+}
+
+body{
+  min-height:var(--app-height);
+}
+
+button{
+  font:inherit;
+  cursor:pointer;
+  border:none;
+  outline:none;
+  -webkit-appearance:none;
+  appearance:none;
+}
+
+/* =========================================
+   MAIN APP
+========================================= */
+
+#app{
+  width:100%;
+  height:var(--app-height);
+  min-height:0;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 380px;
+  background:#010408;
+}
+
+/* =========================================
+   WORLD
+========================================= */
+
+#world{
+  position:relative;
+  overflow:hidden;
+  min-width:0;
+  min-height:0;
+  width:100%;
+  height:100%;
+  background:#01060e;
+  cursor:crosshair;
+  touch-action:none;
+}
+
+#worldScene{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  transform-origin:center center;
+  will-change:transform;
+}
+
+.sky{
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(
+      ellipse at 70% 15%,
+      #1a3048 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 20% 30%,
+      #0d1a28 0%,
+      transparent 40%
+    ),
+    linear-gradient(
+      #030a14 0%,
+      #0a1828 40%,
+      #0d1e2e 70%,
+      #081018 100%
+    );
+}
+
+.stars{
+  position:absolute;
+  inset:0;
+
+  background-image:
+    radial-gradient(1px 1px at 10% 20%,#fff,transparent),
+    radial-gradient(1.5px 1.5px at 25% 8%,#aef,transparent),
+    radial-gradient(1px 1px at 40% 15%,#fff,transparent),
+    radial-gradient(1px 1px at 55% 5%,#def,transparent),
+    radial-gradient(1.2px 1.2px at 70% 22%,#fff,transparent),
+    radial-gradient(1px 1px at 85% 12%,#aef,transparent),
+    radial-gradient(1px 1px at 15% 40%,#fff,transparent),
+    radial-gradient(1px 1px at 90% 35%,#def,transparent);
+
+  opacity:.7;
+  animation:twinkle 8s ease-in-out infinite;
+}
+
+@keyframes twinkle{
+  0%,100%{opacity:.6}
+  50%{opacity:1}
+}
+
+.moon{
+  position:absolute;
+  width:110px;
+  height:110px;
+  border-radius:50%;
+  right:12%;
+  top:7%;
+
+  background:
+    radial-gradient(
+      circle at 35% 35%,
+      #f0f8ff,
+      #c8d8e8 60%,
+      #a0b8c8
+    );
+
+  box-shadow:
+    0 0 60px #b0e0ff66,
+    0 0 120px #80c0ff33,
+    inset -15px -10px 30px #0004;
+}
+
+.moon::after{
+  content:'';
+  position:absolute;
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  top:25%;
+  left:20%;
+  background:#0001;
+}
+
+.atmosphere{
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(
+      transparent 50%,
+      #0a182855 100%
+    );
+  pointer-events:none;
+}
+
+/* =========================================
+   CITY
+========================================= */
+
+.skyline{
+  position:absolute;
+  bottom:36%;
+  left:0;
+  right:0;
+  height:42%;
+
+  display:flex;
+  align-items:flex-end;
+  gap:6px;
+  padding:0 1%;
+
+  z-index:2;
+}
+
+.building{
+  position:relative;
+  flex:1;
+  min-width:42px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #0e1c28 0%,
+      #0a1520 100%
+    );
+
+  border:1px solid #1a3040;
+
+  box-shadow:
+    0 0 30px #000a,
+    inset 0 0 40px #0006;
+
+  overflow:hidden;
+}
+
+.windows{
+  position:absolute;
+  inset:8px 6px;
+
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 16px,
+      #0a2030 17px 19px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 12px,
+      #0a2030 13px 15px
+    );
+}
+
+.windows .lit{
+  position:absolute;
+  width:8px;
+  height:10px;
+  background:var(--amber);
+  opacity:.7;
+  box-shadow:0 0 8px var(--amber);
+  animation:
+    windowFlicker
+    4s
+    ease-in-out
+    infinite;
+}
+
+@keyframes windowFlicker{
+  0%,100%{opacity:.5}
+  30%{opacity:.9}
+  70%{opacity:.3}
+}
+
+.antenna{
+  position:absolute;
+  top:-18px;
+  left:50%;
+  width:2px;
+  height:18px;
+  background:#2a4050;
+  transform:translateX(-50%);
+}
+
+.antenna::after{
+  content:'';
+  position:absolute;
+  top:-4px;
+  left:50%;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--red);
+  transform:translateX(-50%);
+  box-shadow:0 0 8px var(--red);
+  animation:blink 1.2s step-end infinite;
+}
+
+@keyframes blink{
+  50%{opacity:0}
+}
+
+.neon-sign{
+  position:absolute;
+  top:20%;
+  left:50%;
+  transform:translateX(-50%);
+
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:1px;
+
+  color:var(--cyan);
+  text-shadow:0 0 10px var(--cyan);
+
+  white-space:nowrap;
+  opacity:.8;
+
+  animation:
+    neonPulse
+    3s
+    ease-in-out
+    infinite;
+}
+
+@keyframes neonPulse{
+  0%,100%{opacity:.5}
+  50%{opacity:1}
+}
+
+/* =========================================
+   GROUND
+========================================= */
+
+.ground{
+  position:absolute;
+  left:-25%;
+  width:150%;
+  height:70%;
+  bottom:-40%;
+
+  transform:
+    rotateX(68deg);
+
+  transform-origin:center top;
+
+  background:
+    linear-gradient(
+      #0c1820 1.5px,
+      transparent 1.5px
+    ),
+    linear-gradient(
+      90deg,
+      #0c1820 1.5px,
+      transparent 1.5px
+    );
+
+  background-size:80px 80px;
+
+  box-shadow:
+    0 -40px 100px #000a;
+
+  z-index:1;
+}
+
+.road{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:15%;
+  height:130px;
+
+  background:
+    linear-gradient(
+      #060a0e,
+      #0a1016
+    );
+
+  transform:
+    perspective(600px)
+    rotateX(12deg);
+
+  border-top:
+    3px solid #1a2a35;
+
+  border-bottom:
+    2px solid #152530;
+
+  z-index:3;
+}
+
+.roadLine{
+  position:absolute;
+  left:0;
+  right:0;
+  top:58px;
+  height:4px;
+
+  background:
+    repeating-linear-gradient(
+      90deg,
+      #e8c840 0 60px,
+      transparent 60px 120px
+    );
+
+  animation:
+    roadMove
+    1.8s
+    linear
+    infinite;
+}
+
+@keyframes roadMove{
+  from{
+    background-position:0 0;
+  }
+
+  to{
+    background-position:120px 0;
+  }
+}
+
+.sidewalk{
+  position:absolute;
+  left:0;
+  right:0;
+  height:18px;
+  background:#121c24;
+  border-top:1px solid #1e2e3a;
+}
+
+.sidewalk.top{
+  top:0;
+}
+
+.sidewalk.bot{
+  bottom:0;
+}
+
+/* =========================================
+   PEOPLE
+========================================= */
+
+#people{
+  position:absolute;
+  inset:0;
+  z-index:10;
+}
+
+.person{
+  position:absolute;
+  width:42px;
+  height:88px;
+
+  z-index:12;
+
+  cursor:pointer;
+  touch-action:manipulation;
+
+  transform-origin:
+    bottom center;
+
+  transition:
+    filter .12s;
+
+  will-change:
+    left,
+    transform;
+}
+
+.person.selected{
+  filter:
+    drop-shadow(0 0 6px #fff)
+    drop-shadow(0 0 18px #44eaff);
+}
+
+.person.correct{
+  filter:
+    drop-shadow(0 0 10px #00ff9d)
+    drop-shadow(0 0 25px #00ff9d)
+    !important;
+}
+
+.person.wrong{
+  filter:
+    drop-shadow(0 0 14px #ff2a4a)
+    !important;
+}
+
+.head{
+  width:16px;
+  height:16px;
+  margin:0 auto;
+
+  border-radius:50%;
+
+  background:
+    linear-gradient(
+      135deg,
+      #d4a07a,
+      #b07850
+    );
+
+  box-shadow:
+    inset -2px -2px 4px #0003;
+
+  position:relative;
+  z-index:2;
+}
+
+.body{
+  width:26px;
+  height:31px;
+  margin:0 auto;
+
+  border-radius:
+    5px 5px 3px 3px;
+
+  position:relative;
+  z-index:1;
+
+  box-shadow:
+    inset 0 -4px 8px #0004;
+}
+
+.legs{
+  width:22px;
+  height:28px;
+  margin:0 auto;
+
+  display:flex;
+  justify-content:space-between;
+}
+
+.leg{
+  width:8px;
+  height:100%;
+
+  background:#1a2430;
+
+  border-radius:
+    0 0 3px 3px;
+
+  transform-origin:
+    top center;
+}
+
+.person.walking
+.leg:nth-child(1){
+  animation:
+    walkL
+    .45s
+    ease-in-out
+    infinite;
+}
+
+.person.walking
+.leg:nth-child(2){
+  animation:
+    walkR
+    .45s
+    ease-in-out
+    infinite;
+}
+
+@keyframes walkL{
+  0%,100%{
+    transform:rotate(-12deg);
+  }
+
+  50%{
+    transform:rotate(12deg);
+  }
+}
+
+@keyframes walkR{
+  0%,100%{
+    transform:rotate(12deg);
+  }
+
+  50%{
+    transform:rotate(-12deg);
+  }
+}
+
+.bag{
+  position:absolute;
+  width:13px;
+  height:16px;
+  border-radius:3px;
+
+  right:-6px;
+  top:27px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #6b3d1a,
+      #4a2a10
+    );
+
+  box-shadow:
+    1px 2px 4px #0006;
+
+  z-index:3;
+}
+
+.bag.green{
+  background:
+    linear-gradient(
+      135deg,
+      #2a8a4a,
+      #1a5a30
+    ) !important;
+}
+
+.bag.red{
+  background:
+    linear-gradient(
+      135deg,
+      #8a2a2a,
+      #5a1a1a
+    ) !important;
+}
+
+.bag.black{
+  background:
+    linear-gradient(
+      135deg,
+      #2a2a2a,
+      #111
+    ) !important;
+}
+
+.red .body{
+  background:
+    linear-gradient(
+      180deg,
+      #e84a55,
+      #b03038
+    );
+}
+
+.blue .body{
+  background:
+    linear-gradient(
+      180deg,
+      #3a8ad0,
+      #2a5a9a
+    );
+}
+
+.green .body{
+  background:
+    linear-gradient(
+      180deg,
+      #3aba70,
+      #2a7a50
+    );
+}
+
+.yellow .body{
+  background:
+    linear-gradient(
+      180deg,
+      #d0b040,
+      #9a8020
+    );
+}
+
+.white .body{
+  background:
+    linear-gradient(
+      180deg,
+      #e0e4e8,
+      #b0b4b8
+    );
+}
+
+.black .body{
+  background:
+    linear-gradient(
+      180deg,
+      #3a4048,
+      #1a2028
+    );
+}
+
+.purple .body{
+  background:
+    linear-gradient(
+      180deg,
+      #8a4ac0,
+      #5a2a8a
+    );
+}
+
+.orange .body{
+  background:
+    linear-gradient(
+      180deg,
+      #e08030,
+      #a05020
+    );
+}
+
+/* =========================================
+   HUD
+========================================= */
+
+.scanlines{
+  position:absolute;
+  inset:0;
+  z-index:40;
+  pointer-events:none;
+  opacity:.22;
+
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 3px,
+      #000 4px
+    );
+}
+
+.vignette{
+  position:absolute;
+  inset:0;
+  z-index:41;
+  pointer-events:none;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      transparent 35%,
+      #000c 100%
+    );
+}
+
+.noise{
+  position:absolute;
+  inset:0;
+  z-index:39;
+  pointer-events:none;
+  opacity:.04;
+
+  background-image:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.hud{
+  position:absolute;
+  inset:0;
+  z-index:50;
+  pointer-events:none;
+}
+
+.rec{
+  position:absolute;
+  top:12px;
+  left:12px;
+
+  background:#02080ecc;
+
+  padding:7px 11px;
+
+  border:1px solid #1a3040;
+  border-radius:4px;
+
+  font-size:11px;
+  letter-spacing:1px;
+
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+
+.rec .dot{
+  width:7px;
+  height:7px;
+
+  border-radius:50%;
+
+  background:var(--red);
+  box-shadow:0 0 8px var(--red);
+
+  animation:
+    recPulse
+    1s
+    step-end
+    infinite;
+}
+
+@keyframes recPulse{
+  50%{
+    opacity:.3;
+  }
+}
+
+.cam-label{
+  position:absolute;
+  top:12px;
+  right:12px;
+
+  background:#02080ecc;
+
+  border:1px solid #1a3040;
+
+  padding:7px 11px;
+
+  border-radius:4px;
+
+  font-size:10px;
+  letter-spacing:1px;
+}
+
+.cam-label b{
+  color:var(--cyan);
+}
+
+.crosshair{
+  position:absolute;
+  left:50%;
+  top:50%;
+
+  width:46px;
+  height:46px;
+
+  transform:
+    translate(-50%,-50%);
+}
+
+.crosshair::before,
+.crosshair::after{
+  content:'';
+  position:absolute;
+  background:var(--cyan-dim);
+}
+
+.crosshair::before{
+  width:1px;
+  height:100%;
+  left:50%;
+}
+
+.crosshair::after{
+  height:1px;
+  width:100%;
+  top:50%;
+}
+
+.crosshair .corner{
+  position:absolute;
+  width:11px;
+  height:11px;
+  border:2px solid var(--cyan-dim);
+}
+
+.crosshair .tl{
+  top:0;
+  left:0;
+  border-right:0;
+  border-bottom:0;
+}
+
+.crosshair .tr{
+  top:0;
+  right:0;
+  border-left:0;
+  border-bottom:0;
+}
+
+.crosshair .bl{
+  bottom:0;
+  left:0;
+  border-right:0;
+  border-top:0;
+}
+
+.crosshair .br{
+  bottom:0;
+  right:0;
+  border-left:0;
+  border-top:0;
+}
+
+.timestamp{
+  position:absolute;
+  bottom:9px;
+  left:10px;
+
+  font-size:9px;
+  color:var(--muted);
+
+  font-family:monospace;
+  letter-spacing:1px;
+}
+
+.zoom-indicator{
+  position:absolute;
+  bottom:9px;
+  right:10px;
+
+  font-size:9px;
+  color:var(--muted);
+
+  font-family:monospace;
+}
+
+/* =========================================
+   AI
+========================================= */
+
+.aiBox{
+  position:absolute;
+
+  width:78px;
+  height:110px;
+
+  border:2px solid var(--green);
+
+  z-index:25;
+
+  pointer-events:none;
+
+  box-shadow:
+    0 0 20px #00ff9d44,
+    inset 0 0 20px #00ff9d22;
+
+  animation:
+    aiBoxIn
+    .3s
+    ease-out;
+}
+
+.aiBox span{
+  position:absolute;
+  top:-24px;
+  left:-2px;
+
+  background:var(--green);
+  color:#02100a;
+
+  padding:3px 8px;
+
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:1px;
+}
+
+.aiBox.false{
+  border-color:var(--amber);
+  box-shadow:
+    0 0 20px #ffb80044;
+}
+
+.aiBox.false span{
+  background:var(--amber);
+  color:#1a1000;
+}
+
+@keyframes aiBoxIn{
+  from{
+    opacity:0;
+    transform:scale(.8);
+  }
+
+  to{
+    opacity:1;
+    transform:scale(1);
+  }
+}
+
+/* =========================================
+   ALERT
+========================================= */
+
+.alert{
+  position:absolute;
+  left:50%;
+  top:58px;
+
+  transform:
+    translateX(-50%)
+    translateY(-20px);
+
+  opacity:0;
+
+  background:#2a0a12;
+  border:1px solid var(--red);
+
+  padding:8px 14px;
+
+  z-index:60;
+
+  font-weight:700;
+  letter-spacing:1px;
+  font-size:9px;
+
+  transition:.25s;
+
+  box-shadow:
+    0 0 30px #ff2a4a44;
+
+  white-space:nowrap;
+
+  max-width:90%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.alert.show{
+  opacity:1;
+
+  transform:
+    translateX(-50%)
+    translateY(0);
+}
+
+/* =========================================
+   PULSE
+========================================= */
+
+.pulse{
+  position:absolute;
+
+  width:20px;
+  height:20px;
+
+  border:
+    2px solid var(--cyan);
+
+  border-radius:50%;
+
+  transform:
+    translate(-50%,-50%);
+
+  pointer-events:none;
+
+  z-index:30;
+
+  animation:
+    pulseExpand
+    1s
+    forwards;
+}
+
+@keyframes pulseExpand{
+  from{
+    width:16px;
+    height:16px;
+    opacity:1;
+  }
+
+  to{
+    width:600px;
+    height:600px;
+    opacity:0;
+  }
+}
+
+/* =========================================
+   GLITCH
+========================================= */
+
+.glitch-overlay{
+  position:absolute;
+  inset:0;
+  z-index:45;
+
+  pointer-events:none;
+  opacity:0;
+
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 2px,
+      #0ff2 3px
+    );
+
+  mix-blend-mode:screen;
+}
+
+.glitch-overlay.active{
+  animation:
+    glitchFlash
+    .4s
+    ease-out;
+}
+
+@keyframes glitchFlash{
+  0%{opacity:.6}
+  30%{opacity:.2}
+  50%{opacity:.5}
+  100%{opacity:0}
+}
+
+/* =========================================
+   PANEL
+========================================= */
+
+#panel{
+  background:var(--panel);
+
+  border-left:
+    1px solid var(--border);
+
+  overflow-y:auto;
+  overflow-x:hidden;
+
+  padding:16px;
+
+  display:flex;
+  flex-direction:column;
+
+  gap:12px;
+
+  min-width:0;
+  min-height:0;
+
+  -webkit-overflow-scrolling:touch;
+}
+
+/* common panel */
+
+.logo{
+  font-size:22px;
+  font-weight:900;
+  letter-spacing:4px;
+}
+
+.logo span{
+  color:var(--cyan);
+  text-shadow:
+    0 0 20px var(--cyan-dim);
+}
+
+.sub{
+  color:var(--muted);
+  font-size:9px;
+  letter-spacing:1.5px;
+  margin-top:2px;
+}
+
+.case-box{
+  padding:12px;
+
+  border:1px solid var(--border);
+  border-radius:8px;
+
+  background:
+    linear-gradient(
+      160deg,
+      #0c1824,
+      #081018
+    );
+
+  position:relative;
+  overflow:hidden;
+}
+
+.case-box h2{
+  margin:5px 0 4px;
+  font-size:14px;
+}
+
+.case-box p{
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.5;
+}
+
+.caseTag{
+  font-size:8px;
+  color:var(--cyan);
+  letter-spacing:2px;
+  font-weight:700;
+}
+
+.section-title{
+  font-size:9px;
+  letter-spacing:1.5px;
+  color:var(--muted);
+  font-weight:700;
+  margin-bottom:4px;
+}
+
+.clue{
+  margin:3px 0;
+  padding:6px 8px;
+
+  border-radius:5px;
+
+  background:#080f18;
+  color:var(--muted);
+
+  border-left:
+    3px solid #1e3040;
+
+  font-size:10px;
+
+  transition:.3s;
+}
+
+.clue.found{
+  color:var(--green);
+  border-left-color:var(--green);
+  background:#061410;
+}
+
+.cameras{
+  display:grid;
+  grid-template-columns:
+    repeat(4,1fr);
+  gap:4px;
+}
+
+.cameras button{
+  min-height:40px;
+
+  background:#0c1620;
+  color:#90a8bc;
+
+  border:
+    1px solid #1a2e40;
+
+  border-radius:5px;
+
+  font-size:10px;
+  font-weight:700;
+}
+
+.cameras button.active{
+  background:#0a3040;
+  border-color:var(--cyan);
+  color:#fff;
+}
+
+.controls{
+  display:grid;
+  grid-template-columns:
+    repeat(3,1fr);
+
+  gap:4px;
+}
+
+.controls button{
+  min-height:44px;
+
+  border:
+    1px solid #1e3448;
+
+  background:#0c1824;
+  color:var(--text);
+
+  padding:7px 3px;
+
+  border-radius:6px;
+
+  font-size:9px;
+  font-weight:600;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  text-align:center;
+}
+
+.controls .scan{
+  background:#0a2a20;
+  border-color:#1a5a40;
+  color:var(--green);
+}
+
+.controls .danger{
+  background:#2a0a10;
+  border-color:#5a1a28;
+  color:#ff6a7a;
+}
+
+.info-box{
+  padding:8px 9px;
+
+  background:#080f18;
+
+  border:
+    1px solid #1a2e40;
+
+  border-radius:6px;
+
+  color:var(--muted);
+
+  font-size:10px;
+  line-height:1.5;
+
+  min-height:42px;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:4px;
+}
+
+.stat{
+  background:#0a1420;
+  border:1px solid #1a2e40;
+
+  padding:7px;
+
+  border-radius:6px;
+
+  text-align:center;
+}
+
+.stat small{
+  display:block;
+
+  color:var(--muted);
+
+  font-size:7px;
+  letter-spacing:1px;
+}
+
+.stat b{
+  color:var(--cyan);
+  font-size:15px;
+  font-weight:800;
+}
+
+.progress-bar{
+  height:4px;
+
+  background:#0a1520;
+
+  border-radius:2px;
+
+  overflow:hidden;
+
+  margin-top:4px;
+}
+
+.progress-fill{
+  height:100%;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--cyan),
+      var(--green)
+    );
+
+  border-radius:2px;
+
+  transition:
+    width .4s ease;
+}
+
+/* =========================================
+   INTRO
+========================================= */
+
+#intro{
+  position:fixed;
+  inset:0;
+
+  width:100%;
+  height:var(--app-height);
+
+  z-index:300;
+
+  background:#010408;
+
+  display:flex;
+
+  flex-direction:column;
+
+  align-items:center;
+  justify-content:center;
+
+  gap:18px;
+
+  padding:
+    20px
+    max(20px,env(safe-area-inset-right))
+    max(20px,env(safe-area-inset-bottom))
+    max(20px,env(safe-area-inset-left));
+
+  text-align:center;
+}
+
+#intro h1{
+  font-size:clamp(
+    30px,
+    9vw,
+    48px
+  );
+
+  font-weight:900;
+  letter-spacing:6px;
+}
+
+#intro h1 span{
+  color:var(--cyan);
+
+  text-shadow:
+    0 0 40px var(--cyan);
+}
+
+#intro p{
+  color:var(--muted);
+  font-size:11px;
+  letter-spacing:2px;
+}
+
+#intro button{
+  margin-top:18px;
+
+  width:min(280px,85vw);
+  min-height:54px;
+
+  padding:14px 22px;
+
+  background:transparent;
+
+  border:
+    2px solid var(--cyan);
+
+  color:var(--cyan);
+
+  font-weight:800;
+  font-size:13px;
+
+  letter-spacing:2px;
+
+  border-radius:6px;
+}
+
+/* =========================================
+   TUTORIAL
+========================================= */
+
+#tutorial{
+  position:fixed;
+  inset:0;
+
+  width:100%;
+  height:var(--app-height);
+
+  z-index:350;
+
+  display:none;
+
+  align-items:center;
+  justify-content:center;
+
+  background:#010408;
+
+  padding:12px;
+}
+
+.tutorialBox{
+  width:min(760px,96vw);
+
+  max-height:
+    calc(
+      var(--app-height) - 24px
+    );
+
+  overflow-y:auto;
+
+  background:
+    linear-gradient(
+      160deg,
+      #081018,
+      #050b12
+    );
+
+  border:
+    1px solid var(--cyan);
+
+  border-radius:12px;
+
+  padding:18px;
+
+  box-shadow:
+    0 0 60px #00f0ff22,
+    0 0 100px #000;
+
+  -webkit-overflow-scrolling:touch;
+}
+
+.tutorialBox h1{
+  color:var(--cyan);
+
+  font-size:24px;
+
+  letter-spacing:3px;
+
+  margin-bottom:6px;
+}
+
+.tutorialSubtitle{
+  color:var(--muted);
+
+  font-size:9px;
+
+  letter-spacing:1.5px;
+
+  margin-bottom:14px;
+}
+
+.tutorialGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+
+.tutorialCard{
+  background:#09131d;
+
+  border:
+    1px solid #1a3042;
+
+  border-radius:8px;
+
+  padding:11px;
+}
+
+.tutorialCard h3{
+  color:var(--green);
+
+  font-size:11px;
+
+  margin-bottom:5px;
+
+  letter-spacing:1px;
+}
+
+.tutorialCard p{
+  color:var(--text);
+
+  font-size:10px;
+
+  line-height:1.55;
+}
+
+.tutorialKeys{
+  margin-top:12px;
+
+  padding:10px;
+
+  background:#050c13;
+
+  border:
+    1px solid #1a3042;
+
+  border-radius:8px;
+
+  color:var(--text);
+
+  font-size:10px;
+
+  line-height:1.6;
+}
+
+.tutorialKeys strong{
+  color:var(--cyan);
+}
+
+.tutorialButton{
+  width:100%;
+
+  min-height:50px;
+
+  margin-top:12px;
+
+  padding:13px;
+
+  border-radius:7px;
+
+  background:var(--cyan);
+
+  color:#021018;
+
+  font-weight:900;
+
+  letter-spacing:2px;
+
+  font-size:11px;
+}
+
+/* =========================================
+   POPUP
+========================================= */
+
+#popup{
+  position:fixed;
+  inset:0;
+
+  z-index:500;
+
+  background:#000d;
+
+  display:none;
+
+  align-items:center;
+  justify-content:center;
+
+  padding:16px;
+
+  backdrop-filter:blur(6px);
+}
+
+.popupBox{
+  width:min(480px,94vw);
+
+  max-height:
+    calc(
+      var(--app-height) - 32px
+    );
+
+  overflow:auto;
+
+  padding:24px 18px;
+
+  text-align:center;
+
+  border-radius:12px;
+
+  background:#081018;
+
+  border:
+    1px solid #2a4a60;
+}
+
+.popupBox h1{
+  color:var(--green);
+
+  font-size:20px;
+
+  margin-bottom:10px;
+
+  letter-spacing:2px;
+}
+
+.popupBox p{
+  color:var(--muted);
+
+  line-height:1.6;
+
+  font-size:13px;
+}
+
+.popupBox button{
+  margin-top:18px;
+
+  min-height:48px;
+
+  padding:13px 28px;
+
+  border-radius:7px;
+
+  background:var(--cyan);
+
+  color:#021018;
+
+  font-weight:800;
+
+  font-size:12px;
+}
+
+/* =========================================
+   MOBILE PORTRAIT
+========================================= */
+
+/*
+   IMPORTANT:
+   This forces the game into a vertical
+   camera + control layout on phones.
+*/
+
+@media(max-width:700px){
+
+  #app{
+    display:grid;
+
+    grid-template-columns:1fr;
+
+    grid-template-rows:
+      55% 45%;
+
+    height:var(--app-height);
+  }
+
+  #world{
+    width:100%;
+    height:100%;
+    min-height:0;
+  }
+
+  #panel{
+    width:100%;
+    height:100%;
+    min-height:0;
+
+    border-left:none;
+
+    border-top:
+      1px solid var(--border);
+
+    padding:10px;
+
+    gap:8px;
+
+    overflow-y:auto;
+  }
+
+  .skyline{
+    bottom:35%;
+  }
+
+  .moon{
+    width:70px;
+    height:70px;
+  }
+
+  .ground{
+    bottom:-42%;
+  }
+
+  .road{
+    height:90px;
+    bottom:12%;
+  }
+
+  .roadLine{
+    top:40px;
+  }
+
+  .sidewalk{
+    height:13px;
+  }
+
+  .person{
+    width:44px;
+    height:90px;
+  }
+
+  .mobilePortraitHint{
+    display:block;
+  }
+
+  .tutorialGrid{
+    grid-template-columns:1fr;
+  }
+
+}
+
+/* =========================================
+   TABLET / LANDSCAPE
+========================================= */
+
+@media(min-width:701px){
+
+  .mobilePortraitHint{
+    display:none;
+  }
+
+}
+
+/* =========================================
+   VERY SMALL PORTRAIT
+========================================= */
+
+@media(
+  max-width:700px
+) and (
+  max-height:650px
+){
+
+  #app{
+    grid-template-rows:
+      52% 48%;
+  }
+
+  #panel{
+    padding:8px;
+    gap:6px;
+  }
+
+  .case-box{
+    padding:8px;
+  }
+
+  .clue{
+    padding:5px 7px;
+    font-size:9px;
+  }
+
+  .controls button{
+    min-height:40px;
+    font-size:8px;
+  }
+
+  .info-box{
+    display:none;
+  }
+
+}
+
+/* =========================================
+   MOBILE HINT
+========================================= */
+
+.mobilePortraitHint{
+  position:absolute;
+
+  top:48px;
+  left:50%;
+
+  transform:
+    translateX(-50%);
+
+  z-index:80;
+
+  padding:5px 8px;
+
+  background:#02080ecc;
+
+  border:
+    1px solid #1a3040;
+
+  border-radius:5px;
+
+  color:var(--muted);
+
+  font-size:8px;
+
+  letter-spacing:1px;
+
+  white-space:nowrap;
+
+  pointer-events:none;
+}
+
+#world.nv{
+  filter:
+    sepia(1)
+    hue-rotate(75deg)
+    saturate(1.6)
+    brightness(.7)
+    contrast(1.15);
+}
+
+#world.thermal{
+  filter:
+    hue-rotate(180deg)
+    saturate(2)
+    brightness(.85)
+    contrast(1.3);
+}
+
+.tooltip{
+  position:absolute;
+  z-index:90;
+
+  background:#0a1520ee;
+
+  border:
+    1px solid var(--cyan);
+
+  padding:6px 12px;
+
+  border-radius:4px;
+
+  font-size:11px;
+
+  pointer-events:none;
+
+  white-space:nowrap;
+
+  opacity:0;
+}
+
+.tooltip.show{
+  opacity:1;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- =========================================
+     INTRO
+========================================= -->
+
+<div id="intro">
+
+  <h1>
+    SPY<span>CITY</span>
+  </h1>
+
+  <p>
+    NEURAL SURVEILLANCE GRID v3.1
+  </p>
+
+  <p
+    style="
+      font-size:11px;
+      opacity:.6;
+      max-width:340px;
+      line-height:1.6;
+    "
+  >
+    Identify targets across the camera network.
+    Use AI scan, analyse evidence, and track suspects
+    before they disappear.
+  </p>
+
+  <button onclick="showTutorial()">
+    START TUTORIAL
+  </button>
+
+</div>
+
+<!-- =========================================
+     DANISH TUTORIAL
+========================================= -->
+
+<div id="tutorial">
+
+  <div class="tutorialBox">
+
+    <h1>SPYCITY</h1>
+
+    <div class="tutorialSubtitle">
+      DANSK TRÆNING // SÅDAN SPILLER DU
+    </div>
+
+    <div class="tutorialGrid">
+
+      <div class="tutorialCard">
+
+        <h3>🎯 DIT MÅL</h3>
+
+        <p>
+          Find den rigtige person blandt alle personerne.
+          Brug oplysningerne i sagen til at identificere målet.
+        </p>
+
+      </div>
+
+      <div class="tutorialCard">
+
+        <h3>🔎 LEDERTRÅDE</h3>
+
+        <p>
+          Kig efter farven på tøjet, taske,
+          kamera-position og bevægelseshastighed.
+        </p>
+
+      </div>
+
+      <div class="tutorialCard">
+
+        <h3>📹 KAMERAER</h3>
+
+        <p>
+          Tryk på kamera 01–08 for at undersøge
+          forskellige områder af byen.
+        </p>
+
+      </div>
+
+      <div class="tutorialCard">
+
+        <h3>🤖 AI SCAN</h3>
+
+        <p>
+          AI Scan forsøger at finde målet automatisk,
+          men AI'en kan tage fejl.
+        </p>
+
+      </div>
+
+      <div class="tutorialCard">
+
+        <h3>🔎 ANALYSE</h3>
+
+        <p>
+          Tryk på en person og brug Analyse
+          for at kontrollere personen.
+        </p>
+
+      </div>
+
+      <div class="tutorialCard">
+
+        <h3>🚩 VÆLG MÅLET</h3>
+
+        <p>
+          Tryk på den person, du mener er målet.
+          Et korrekt valg giver point.
+        </p>
+
+      </div>
+
+      <div class="tutorialCard">
+
+        <h3>🔍 ZOOM</h3>
+
+        <p>
+          Brug ZOOM+ eller brug to fingre
+          direkte på kameraet for at zoome.
+        </p>
+
+      </div>
+
+      <div class="tutorialCard">
+
+        <h3>📱 TELEFON</h3>
+
+        <p>
+          Hele spillet kan spilles stående på telefonen.
+          Du behøver ikke dreje mobilen.
+        </p>
+
+      </div>
+
+    </div>
+
+    <div class="tutorialKeys">
+
+      <strong>📱 TELEFON:</strong><br>
+      Tryk på personer for at vælge dem.<br>
+      Tryk på kamera-knapperne for at skifte kamera.<br>
+      Brug to fingre for at zoome.<br><br>
+
+      <strong>⌨️ PC:</strong><br>
+      1–8 = Kamera<br>
+      A = AI Scan<br>
+      S = Analyse<br>
+      N = Vision<br>
+      Z = Zoom<br>
+      P = Ping
+
+    </div>
+
+    <button
+      class="tutorialButton"
+      onclick="startGame()"
+    >
+      START SPYCITY →
+    </button>
+
+  </div>
+
+</div>
+
+<!-- =========================================
+     GAME
+========================================= -->
+
+<div id="app" style="display:none">
+
+  <section id="world">
+
+    <div id="worldScene">
+
+      <div class="sky"></div>
+      <div class="stars"></div>
+      <div class="moon"></div>
+      <div class="atmosphere"></div>
+
+      <div
+        class="skyline"
+        id="skyline"
+      ></div>
+
+      <div class="ground"></div>
+
+      <div class="road">
+
+        <div class="sidewalk top"></div>
+
+        <div class="roadLine"></div>
+
+        <div class="sidewalk bot"></div>
+
+      </div>
+
+      <div id="people"></div>
+
+    </div>
+
+    <div class="scanlines"></div>
+    <div class="noise"></div>
+    <div class="vignette"></div>
+
+    <div
+      class="glitch-overlay"
+      id="glitch"
+    ></div>
+
+    <div class="hud">
+
+      <div class="rec">
+
+        <div class="dot"></div>
+
+        LIVE FEED
+
+      </div>
+
+      <div class="cam-label">
+
+        CAM
+        <b id="camNumber">
+          01
+        </b>
+
+        &nbsp;|&nbsp;
+
+        SECTOR-7
+
+      </div>
+
+      <div class="crosshair">
+
+        <div class="corner tl"></div>
+        <div class="corner tr"></div>
+        <div class="corner bl"></div>
+        <div class="corner br"></div>
+
+      </div>
+
+      <div
+        class="timestamp"
+        id="timestamp"
+      >
+        00:00:00
+      </div>
+
+      <div
+        class="zoom-indicator"
+        id="zoomInd"
+      >
+        ZOOM 1.0x
+      </div>
+
+      <div class="mobilePortraitHint">
+        TRYK PÅ EN PERSON • 2 FINGRE = ZOOM
+      </div>
+
+    </div>
+
+    <div
+      class="alert"
+      id="alert"
+    >
+      ⚠ FALSE POSITIVE — TARGET LOST
+    </div>
+
+    <div
+      class="tooltip"
+      id="tooltip"
+    ></div>
+
+  </section>
+
+  <aside id="panel">
+
+    <div>
+
+      <div class="logo">
+        SPY<span>CITY</span>
+      </div>
+
+      <div class="sub">
+        URBAN INTEL // TRAINING SIM
+      </div>
+
+    </div>
+
+    <div class="case-box">
+
+      <div class="caseTag">
+        ACTIVE OPERATION
+      </div>
+
+      <h2 id="caseTitle">
+        —
+      </h2>
+
+      <p id="caseDescription"></p>
+
+      <div class="progress-bar">
+
+        <div
+          class="progress-fill"
+          id="caseProgress"
+          style="width:0%"
+        ></div>
+
+      </div>
+
+    </div>
+
+    <div>
+
+      <div class="section-title">
+        🔎 EVIDENCE LOG
+      </div>
+
+      <div id="clues"></div>
+
+    </div>
+
+    <div>
+
+      <div class="section-title">
+        📹 CAMERA NETWORK
+      </div>
+
+      <div
+        class="cameras"
+        id="camButtons"
+      ></div>
+
+    </div>
+
+    <div>
+
+      <div class="section-title">
+        ⚡ TOOLS
+      </div>
+
+      <div class="controls">
+
+        <button
+          class="scan"
+          onclick="aiScan()"
+        >
+          🤖 AI SCAN
+        </button>
+
+        <button onclick="analyse()">
+          🔎 ANALYSE
+        </button>
+
+        <button onclick="pingCamera()">
+          📡 PING
+        </button>
+
+        <button onclick="toggleVision()">
+          🌙 VISION
+        </button>
+
+        <button onclick="zoomIn()">
+          🔍 ZOOM+
+        </button>
+
+        <button
+          class="danger"
+          onclick="flagSuspect()"
+        >
+          🚩 FLAG
+        </button>
+
+      </div>
+
+    </div>
+
+    <div
+      class="info-box"
+      id="info"
+    >
+      System online. Awaiting orders.
+    </div>
+
+    <div class="stats">
+
+      <div class="stat">
+        <small>SCORE</small>
+        <b id="score">0</b>
+      </div>
+
+      <div class="stat">
+        <small>STREAK</small>
+        <b id="streak">0</b>
+      </div>
+
+      <div class="stat">
+        <small>CAMERA</small>
+        <b id="camStat">01</b>
+      </div>
+
+      <div class="stat">
+        <small>ALERTS</small>
+        <b id="alerts">0</b>
+      </div>
+
+    </div>
+
+  </aside>
+
+</div>
+
+<!-- =========================================
+     POPUP
+========================================= -->
+
+<div id="popup">
+
+  <div class="popupBox">
+
+    <h1 id="popupTitle"></h1>
+
+    <p id="popupText"></p>
+
+    <button
+      id="popupBtn"
+      onclick="nextCase()"
+    >
+      NEXT OPERATION →
+    </button>
+
+  </div>
+
+</div>
+
+<script>
+
+/* =========================================
+   FIX MOBILE VIEWPORT
+========================================= */
+
+function updateViewportHeight(){
+
+  const height =
+    window.visualViewport
+      ? window.visualViewport.height
+      : window.innerHeight;
+
+  document.documentElement.style
+    .setProperty(
+      "--app-height",
+      `${height}px`
+    );
+
+}
+
+updateViewportHeight();
+
+window.addEventListener(
+  "resize",
+  updateViewportHeight
+);
+
+if(window.visualViewport){
+
+  window.visualViewport.addEventListener(
+    "resize",
+    updateViewportHeight
+  );
+
+}
+
+/* =========================================
+   CASES
+========================================= */
+
+const CASES = [
+
+  {
+    title:"THE GREEN COURIER",
+
+    description:
+      "A high-value package left the central hub 14 minutes ago. Locate the courier with the distinctive green bag.",
+
+    clues:[
+      "Wears a green jacket.",
+      "Carries a green bag.",
+      "Last ping: Camera 02.",
+      "Moving at normal pace."
+    ],
+
+    answer:"green",
+    camera:2,
+    bag:"green",
+    speedHint:"normal"
+  },
+
+  {
+    title:"BLUE SIGNAL",
+
+    description:
+      "Encrypted transmission detected on the east grid. Identify the source before the signal goes dark.",
+
+    clues:[
+      "Blue clothing confirmed.",
+      "No bag detected.",
+      "Camera 04 is the last known position.",
+      "Possibly heading west."
+    ],
+
+    answer:"blue",
+    camera:4,
+    bag:false,
+    speedHint:"normal"
+  },
+
+  {
+    title:"YELLOW RUNNER",
+
+    description:
+      "Subject fled the scene after a security breach. Speed is elevated — do not lose visual contact.",
+
+    clues:[
+      "Yellow outerwear.",
+      "Moving significantly faster than civilians.",
+      "Camera 06 has the best angle.",
+      "No bag."
+    ],
+
+    answer:"yellow",
+    camera:6,
+    bag:false,
+    speedHint:"fast"
+  },
+
+  {
+    title:"RED CONTACT",
+
+    description:
+      "Asset rendezvous scheduled. Confirm the red-jacketed contact before extraction window closes.",
+
+    clues:[
+      "Red jacket.",
+      "Carries a bag.",
+      "Camera 03 coverage.",
+      "Heading toward the west perimeter."
+    ],
+
+    answer:"red",
+    camera:3,
+    bag:true,
+    speedHint:"normal"
+  },
+
+  {
+    title:"FALSE POSITIVE",
+
+    description:
+      "The neural net flagged a high-confidence match. Cross-check manually — the AI has been unreliable tonight.",
+
+    clues:[
+      "Black clothing.",
+      "AI confidence is degraded.",
+      "Verify on Camera 07.",
+      "No bag expected."
+    ],
+
+    answer:"black",
+    camera:7,
+    bag:false,
+    speedHint:"normal"
+  },
+
+  {
+    title:"NETWORK HANDOFF",
+
+    description:
+      "Target is transferring across the grid. Track from Camera 02 through to final sighting on Camera 08.",
+
+    clues:[
+      "Blue jacket.",
+      "Carries a bag.",
+      "Start at Camera 02.",
+      "Final sighting: Camera 08."
+    ],
+
+    answer:"blue",
+    camera:8,
+    bag:true,
+    speedHint:"normal"
+  },
+
+  {
+    title:"PURPLE GHOST",
+
+    description:
+      "A new signature appeared on the thermal layer. Purple clothing, unusually deliberate movement.",
+
+    clues:[
+      "Purple outerwear.",
+      "Moving slowly — possibly counter-surveillance.",
+      "Camera 05.",
+      "No bag."
+    ],
+
+    answer:"purple",
+    camera:5,
+    bag:false,
+    speedHint:"slow"
+  },
+
+  {
+    title:"ORANGE DROP",
+
+    description:
+      "Dead-drop scheduled in Sector 7. Locate the orange-clad operative carrying the package.",
+
+    clues:[
+      "Orange clothing.",
+      "Bag present.",
+      "Camera 01 has clear line of sight.",
+      "Standard pace."
+    ],
+
+    answer:"orange",
+    camera:1,
+    bag:true,
+    speedHint:"normal"
+  }
+
+];
+
+/* =========================================
+   STATE
+========================================= */
+
+let current = 0;
+let camera = 1;
+let score = 0;
+let streak = 0;
+let alerts = 0;
+
+let selected = null;
+let visionMode = 0;
+
+let zoom = 1;
+
+const MIN_ZOOM = 1;
+const MAX_ZOOM = 2.2;
+
+let people = [];
+
+let startTime =
+  Date.now();
+
+let highScore =
+  parseInt(
+    localStorage.getItem(
+      "spycity_hs"
+    ) || "0",
+    10
+  );
+
+const COLORS = [
+  "red",
+  "blue",
+  "green",
+  "yellow",
+  "black",
+  "white",
+  "purple",
+  "orange"
+];
+
+/* =========================================
+   TUTORIAL
+========================================= */
+
+function showTutorial(){
+
+  document.getElementById(
+    "intro"
+  ).style.display = "none";
+
+  document.getElementById(
+    "tutorial"
+  ).style.display = "flex";
+
+}
+
+/* =========================================
+   ZOOM
+========================================= */
+
+function setZoom(value){
+
+  zoom =
+    Math.max(
+      MIN_ZOOM,
+      Math.min(
+        MAX_ZOOM,
+        value
+      )
+    );
+
+  document.getElementById(
+    "worldScene"
+  ).style.transform =
+    `scale(${zoom})`;
+
+  document.getElementById(
+    "zoomInd"
+  ).textContent =
+    `ZOOM ${zoom.toFixed(1)}x`;
+
+}
+
+function zoomIn(){
+
+  let next =
+    zoom + .3;
+
+  if(next > MAX_ZOOM){
+    next = MIN_ZOOM;
+  }
+
+  setZoom(
+    Number(
+      next.toFixed(1)
+    )
+  );
+
+}
+
+/* =========================================
+   PINCH ZOOM
+========================================= */
+
+let pinchStartDistance = null;
+let pinchStartZoom = 1;
+
+function touchDistance(
+  a,
+  b
+){
+
+  const dx =
+    a.clientX -
+    b.clientX;
+
+  const dy =
+    a.clientY -
+    b.clientY;
+
+  return Math.sqrt(
+    dx * dx +
+    dy * dy
+  );
+
+}
+
+const worldElement =
+  document.getElementById(
+    "world"
+  );
+
+worldElement.addEventListener(
+  "touchstart",
+  event => {
+
+    if(
+      event.touches.length === 2
+    ){
+
+      pinchStartDistance =
+        touchDistance(
+          event.touches[0],
+          event.touches[1]
+        );
+
+      pinchStartZoom =
+        zoom;
+
+    }
+
+  },
+  {passive:true}
+);
+
+worldElement.addEventListener(
+  "touchmove",
+  event => {
+
+    if(
+      event.touches.length !== 2
+    ){
+      return;
+    }
+
+    event.preventDefault();
+
+    const currentDistance =
+      touchDistance(
+        event.touches[0],
+        event.touches[1]
+      );
+
+    if(
+      !pinchStartDistance
+    ){
+      return;
+    }
+
+    const ratio =
+      currentDistance /
+      pinchStartDistance;
+
+    setZoom(
+      pinchStartZoom *
+      ratio
+    );
+
+  },
+  {passive:false}
+);
+
+worldElement.addEventListener(
+  "touchend",
+  event => {
+
+    if(
+      event.touches.length < 2
+    ){
+
+      pinchStartDistance = null;
+
+    }
+
+  },
+  {passive:true}
+);
+
+/* =========================================
+   SKYLINE
+========================================= */
+
+function buildSkyline(){
+
+  const skyline =
+    document.getElementById(
+      "skyline"
+    );
+
+  skyline.innerHTML = "";
+
+  const heights = [
+    58,88,48,100,72,95,
+    55,80,65,90,45,85
+  ];
+
+  const signs = [
+    "NEON",
+    "GRID",
+    "SYNC",
+    "NODE",
+    "DATA",
+    "CORE",
+    "LINK",
+    "VOID"
+  ];
+
+  heights.forEach(
+    (height,index)=>{
+
+      const building =
+        document.createElement(
+          "div"
+        );
+
+      building.className =
+        "building";
+
+      building.style.height =
+        height + "%";
+
+      building.innerHTML =
+        `<div class="windows"></div>`;
+
+      if(
+        Math.random() > .4
+      ){
+
+        const antenna =
+          document.createElement(
+            "div"
+          );
+
+        antenna.className =
+          "antenna";
+
+        building.appendChild(
+          antenna
+        );
+
+      }
+
+      if(
+        Math.random() > .65
+      ){
+
+        const sign =
+          document.createElement(
+            "div"
+          );
+
+        sign.className =
+          "neon-sign";
+
+        sign.textContent =
+          signs[
+            index %
+            signs.length
+          ];
+
+        building.appendChild(
+          sign
+        );
+
+      }
+
+      skyline.appendChild(
+        building
+      );
+
+      const windows =
+        building.querySelector(
+          ".windows"
+        );
+
+      for(
+        let i=0;
+        i < 6 + Math.random()*10;
+        i++
+      ){
+
+        const lit =
+          document.createElement(
+            "div"
+          );
+
+        lit.className =
+          "lit";
+
+        lit.style.left =
+          (
+            8 +
+            Math.random()*80
+          ) + "%";
+
+        lit.style.top =
+          (
+            5 +
+            Math.random()*85
+          ) + "%";
+
+        lit.style.animationDelay =
+          (
+            Math.random()*4
+          ) + "s";
+
+        if(
+          Math.random() > .5
+        ){
+
+          lit.style.background =
+            "var(--cyan)";
+
+        }
+
+        if(
+          Math.random() > .7
+        ){
+
+          lit.style.background =
+            "var(--green)";
+
+        }
+
+        windows.appendChild(
+          lit
+        );
+
+      }
+
+    }
+  );
+
+}
+
+/* =========================================
+   PEOPLE
+========================================= */
+
+function spawnPeople(){
+
+  document
+    .querySelectorAll(
+      ".person"
+    )
+    .forEach(
+      p => p.remove()
+    );
+
+  people = [];
+
+  const c =
+    CASES[current];
+
+  const count =
+    9 +
+    Math.floor(
+      Math.random()*4
+    );
+
+  const colors = [];
+
+  for(
+    let i=0;
+    i<count;
+    i++
+  ){
+
+    colors.push(
+      COLORS[
+        Math.floor(
+          Math.random() *
+          COLORS.length
+        )
+      ]
+    );
+
+  }
+
+  const targetIndex =
+    Math.floor(
+      Math.random()*count
+    );
+
+  colors[targetIndex] =
+    c.answer;
+
+  colors.forEach(
+    (color,index)=>{
+
+      const p =
+        document.createElement(
+          "div"
+        );
+
+      p.className =
+        `person ${color} walking`;
+
+      p.dataset.color =
+        color;
+
+      p.dataset.id =
+        `P-${String(
+          index+1
+        ).padStart(
+          2,
+          "0"
+        )}`;
+
+      const isTarget =
+        index === targetIndex;
+
+      let hasBag =
+        Math.random() < .25;
+
+      let bagType = "";
+
+      if(
+        isTarget &&
+        c.bag
+      ){
+
+        hasBag = true;
+
+        bagType =
+          typeof c.bag === "string"
+            ? c.bag
+            : "";
+
+      }
+
+      if(
+        isTarget &&
+        !c.bag
+      ){
+
+        hasBag = false;
+
+      }
+
+      p.style.left =
+        (
+          3 +
+          index *
+            (90/count) +
+          Math.random()*4
+        ) + "%";
+
+      p.style.top =
+        (
+          50 +
+          Math.random()*28
+        ) + "%";
+
+      p.style.zIndex =
+        12 +
+        Math.floor(
+          parseFloat(
+            p.style.top
+          )
+        );
+
+      p.innerHTML = `
+        <div class="head"></div>
+        <div class="body"></div>
+
+        ${
+          hasBag
+            ? `<div class="bag ${bagType}"></div>`
+            : ""
+        }
+
+        <div class="legs">
+          <div class="leg"></div>
+          <div class="leg"></div>
+        </div>
+      `;
+
+      p.addEventListener(
+        "click",
+        event => {
+
+          event.stopPropagation();
+
+          selectPerson(p);
+
+        }
+      );
+
+      document
+        .getElementById(
+          "people"
+        )
+        .appendChild(p);
+
+      let speed =
+        .022 +
+        Math.random()*.03;
+
+      if(
+        isTarget &&
+        c.speedHint === "fast"
+      ){
+
+        speed *= 1.7;
+
+      }
+
+      if(
+        isTarget &&
+        c.speedHint === "slow"
+      ){
+
+        speed *= .55;
+
+      }
+
+      people.push({
+        el:p,
+        direction:
+          Math.random() > .5
+            ? 1
+            : -1,
+        speed,
+        scale:
+          .6 +
+          Math.random()*.55,
+        isTarget
+      });
+
+    }
+  );
+
+}
+
+/* =========================================
+   ANIMATION
+========================================= */
+
+function animate(){
+
+  people.forEach(
+    person=>{
+
+      let x =
+        parseFloat(
+          person.el.style.left
+        );
+
+      x +=
+        person.speed *
+        person.direction;
+
+      if(x > 97){
+
+        person.direction = -1;
+
+        person.el.style.transform =
+          `scaleX(-1) scale(${person.scale})`;
+
+      }
+
+      if(x < 1){
+
+        person.direction = 1;
+
+        person.el.style.transform =
+          `scaleX(1) scale(${person.scale})`;
+
+      }
+
+      person.el.style.left =
+        x + "%";
+
+    }
+  );
+
+  const elapsed =
+    Math.floor(
+      (
+        Date.now() -
+        startTime
+      ) / 1000
+    );
+
+  const hours =
+    String(
+      Math.floor(
+        elapsed/3600
+      )
+    ).padStart(2,"0");
+
+  const minutes =
+    String(
+      Math.floor(
+        (elapsed%3600)/60
+      )
+    ).padStart(2,"0");
+
+  const seconds =
+    String(
+      elapsed%60
+    ).padStart(2,"0");
+
+  document.getElementById(
+    "timestamp"
+  ).textContent =
+    `${hours}:${minutes}:${seconds} UTC`;
+
+  requestAnimationFrame(
+    animate
+  );
+
+}
+
+/* =========================================
+   CAMERA
+========================================= */
+
+function switchCamera(n){
+
+  camera = n;
+  selected = null;
+
+  document.getElementById(
+    "camNumber"
+  ).textContent =
+    String(n).padStart(2,"0");
+
+  document.getElementById(
+    "camStat"
+  ).textContent =
+    String(n).padStart(2,"0");
+
+  document
+    .querySelectorAll(
+      ".cameras button"
+    )
+    .forEach(
+      (button,index)=>{
+
+        button.classList.toggle(
+          "active",
+          index+1 === n
+        );
+
+      }
+    );
+
+  const glitch =
+    document.getElementById(
+      "glitch"
+    );
+
+  glitch.classList.remove(
+    "active"
+  );
+
+  void glitch.offsetWidth;
+
+  glitch.classList.add(
+    "active"
+  );
+
+  spawnPeople();
+
+  setInfo(
+    `Camera ${String(n).padStart(2,"0")} linked. Scanning sector...`
+  );
+
+}
+
+/* =========================================
+   CAMERA BUTTONS
+========================================= */
+
+function buildCamButtons(){
+
+  const container =
+    document.getElementById(
+      "camButtons"
+    );
+
+  container.innerHTML = "";
+
+  for(
+    let i=1;
+    i<=8;
+    i++
+  ){
+
+    const button =
+      document.createElement(
+        "button"
+      );
+
+    button.textContent =
+      String(i).padStart(
+        2,
+        "0"
+      );
+
+    button.addEventListener(
+      "click",
+      ()=>{
+        switchCamera(i);
+      }
+    );
+
+    container.appendChild(
+      button
+    );
+
+  }
+
+}
+
+/* =========================================
+   SELECT
+========================================= */
+
+function selectPerson(person){
+
+  document
+    .querySelectorAll(
+      ".person"
+    )
+    .forEach(
+      p=>{
+        p.classList.remove(
+          "selected",
+          "correct",
+          "wrong"
+        );
+      }
+    );
+
+  person.classList.add(
+    "selected"
+  );
+
+  selected = person;
+
+  const c =
+    CASES[current];
+
+  if(
+    person.dataset.color ===
+    c.answer
+  ){
+
+    const hasBag =
+      !!person.querySelector(
+        ".bag"
+      );
+
+    if(
+      c.bag &&
+      !hasBag
+    ){
+
+      failSelect(
+        person,
+        "Bag missing — not the target."
+      );
+
+      return;
+
+    }
+
+    const reward =
+      200 +
+      streak*75 +
+      (visionMode ? 0 : 25);
+
+    score += reward;
+
+    streak++;
+
+    person.classList.add(
+      "correct"
+    );
+
+    unlockAllClues();
+
+    update();
+
+    setTimeout(
+      ()=>{
+        popup(
+          "OPERATION COMPLETE",
+
+          `Target confirmed.<br><br>
+           <b>+${reward} SCORE</b><br>
+           Streak: <b>${streak}</b><br>
+           High Score: <b>${Math.max(
+             score,
+             highScore
+           )}</b>`
+        );
+      },
+      400
+    );
+
+  }
+  else{
+
+    failSelect(
+      person,
+      "Wrong target. Evidence does not match."
+    );
+
+  }
+
+}
+
+function failSelect(
+  person,
+  message
+){
+
+  score =
+    Math.max(
+      0,
+      score - 60
+    );
+
+  streak = 0;
+
+  alerts++;
+
+  person.classList.add(
+    "wrong"
+  );
+
+  showAlert();
+
+  setInfo(
+    "❌ " + message
+  );
+
+  update();
+
+}
+
+/* =========================================
+   ANALYSE
+========================================= */
+
+function analyse(){
+
+  if(!selected){
+
+    setInfo(
+      "Select a subject first."
+    );
+
+    return;
+
+  }
+
+  const c =
+    CASES[current];
+
+  const matches = [];
+
+  if(
+    selected.dataset.color ===
+    c.answer
+  ){
+
+    matches.push(
+      "clothing signature match"
+    );
+
+  }
+
+  const hasBag =
+    !!selected.querySelector(
+      ".bag"
+    );
+
+  if(
+    c.bag &&
+    hasBag
+  ){
+
+    matches.push(
+      "bag detected"
+    );
+
+  }
+
+  if(
+    !c.bag &&
+    !hasBag
+  ){
+
+    matches.push(
+      "no bag — consistent"
+    );
+
+  }
+
+  if(matches.length){
+
+    setInfo(
+      "✓ Partial match: " +
+      matches.join(", ") +
+      "."
+    );
+
+    unlockClue();
+
+  }
+  else{
+
+    setInfo(
+      "No conclusive evidence match on this subject."
+    );
+
+  }
+
+}
+
+function unlockClue(){
+
+  const c =
+    CASES[current];
+
+  for(
+    let i=0;
+    i<c.clues.length;
+    i++
+  ){
+
+    const clue =
+      document.getElementById(
+        "clue"+i
+      );
+
+    if(
+      clue &&
+      !clue.classList.contains(
+        "found"
+      )
+    ){
+
+      clue.classList.add(
+        "found"
+      );
+
+      clue.innerHTML =
+        "✓ " +
+        c.clues[i];
+
+      const pct =
+        (
+          (i+1) /
+          c.clues.length
+        )*100;
+
+      document.getElementById(
+        "caseProgress"
+      ).style.width =
+        pct + "%";
+
+      return;
+
+    }
+
+  }
+
+}
+
+function unlockAllClues(){
+
+  const c =
+    CASES[current];
+
+  c.clues.forEach(
+    (clueText,index)=>{
+
+      const clue =
+        document.getElementById(
+          "clue"+index
+        );
+
+      if(clue){
+
+        clue.classList.add(
+          "found"
+        );
+
+        clue.innerHTML =
+          "✓ " +
+          clueText;
+
+      }
+
+    }
+  );
+
+  document.getElementById(
+    "caseProgress"
+  ).style.width =
+    "100%";
+
+}
+
+/* =========================================
+   AI
+========================================= */
+
+function aiScan(){
+
+  if(!people.length)
+    return;
+
+  let target =
+    people.find(
+      p=>p.isTarget
+    );
+
+  const falsePositive =
+    Math.random() < .28;
+
+  if(falsePositive){
+
+    target =
+      people[
+        Math.floor(
+          Math.random() *
+          people.length
+        )
+      ];
+
+    setInfo(
+      "⚠ AI CONFIDENCE: 41% — VERIFY MANUALLY."
+    );
+
+  }
+  else{
+
+    setInfo(
+      "🤖 Neural net lock: high probability match located."
+    );
+
+  }
+
+  const rect =
+    target.el.getBoundingClientRect();
+
+  const worldRect =
+    document
+      .getElementById(
+        "world"
+      )
+      .getBoundingClientRect();
+
+  const box =
+    document.createElement(
+      "div"
+    );
+
+  box.className =
+    "aiBox" +
+    (
+      falsePositive
+        ? " false"
+        : ""
+    );
+
+  box.innerHTML =
+    `<span>${
+      falsePositive
+        ? "LOW CONF"
+        : "AI MATCH"
+    }</span>`;
+
+  box.style.left =
+    (
+      rect.left -
+      worldRect.left -
+      20
+    ) + "px";
+
+  box.style.top =
+    (
+      rect.top -
+      worldRect.top -
+      10
+    ) + "px";
+
+  document
+    .getElementById(
+      "worldScene"
+    )
+    .appendChild(
+      box
+    );
+
+  setTimeout(
+    ()=>box.remove(),
+    2600
+  );
+
+  unlockClue();
+
+}
+
+/* =========================================
+   PING
+========================================= */
+
+function pingCamera(){
+
+  const pulse =
+    document.createElement(
+      "div"
+    );
+
+  pulse.className =
+    "pulse";
+
+  pulse.style.left =
+    "50%";
+
+  pulse.style.top =
+    "55%";
+
+  document
+    .getElementById(
+      "worldScene"
+    )
+    .appendChild(
+      pulse
+    );
+
+  setInfo(
+    "📡 Pulse transmitted across camera mesh. All nodes responding."
+  );
+
+  setTimeout(
+    ()=>pulse.remove(),
+    1100
+  );
+
+}
+
+/* =========================================
+   VISION
+========================================= */
+
+function toggleVision(){
+
+  visionMode =
+    (visionMode+1)%3;
+
+  const scene =
+    document.getElementById(
+      "worldScene"
+    );
+
+  scene.classList.remove(
+    "nv",
+    "thermal"
+  );
+
+  if(
+    visionMode === 1
+  ){
+
+    scene.classList.add(
+      "nv"
+    );
+
+    setInfo(
+      "🌙 Night vision active."
+    );
+
+  }
+  else if(
+    visionMode === 2
+  ){
+
+    scene.classList.add(
+      "thermal"
+    );
+
+    setInfo(
+      "🌡 Thermal overlay active."
+    );
+
+  }
+  else{
+
+    setInfo(
+      "Standard optical feed restored."
+    );
+
+  }
+
+}
+
+/* =========================================
+   FLAG
+========================================= */
+
+function flagSuspect(){
+
+  if(!selected){
+
+    setInfo(
+      "Select a subject to flag."
+    );
+
+    return;
+
+  }
+
+  setInfo(
+    `🚩 Subject ${selected.dataset.id} flagged.`
+  );
+
+  unlockClue();
+
+}
+
+/* =========================================
+   ALERT
+========================================= */
+
+function showAlert(){
+
+  const alert =
+    document.getElementById(
+      "alert"
+    );
+
+  alert.classList.add(
+    "show"
+  );
+
+  setTimeout(
+    ()=>{
+      alert.classList.remove(
+        "show"
+      );
+    },
+    1600
+  );
+
+}
+
+/* =========================================
+   POPUP
+========================================= */
+
+function popup(
+  title,
+  text
+){
+
+  document.getElementById(
+    "popupTitle"
+  ).textContent =
+    title;
+
+  document.getElementById(
+    "popupText"
+  ).innerHTML =
+    text;
+
+  document.getElementById(
+    "popup"
+  ).style.display =
+    "flex";
+
+  if(
+    score > highScore
+  ){
+
+    highScore = score;
+
+    localStorage.setItem(
+      "spycity_hs",
+      highScore
+    );
+
+  }
+
+}
+
+function nextCase(){
+
+  document.getElementById(
+    "popup"
+  ).style.display =
+    "none";
+
+  current++;
+
+  if(
+    current >=
+    CASES.length
+  ){
+
+    popup(
+      "🏆 GRID SECURED",
+
+      `All operations complete.<br><br>
+       Final Score: <b>${score}</b><br>
+       High Score: <b>${highScore}</b><br><br>
+       Network integrity restored.`
+    );
+
+    const button =
+      document.getElementById(
+        "popupBtn"
+      );
+
+    button.textContent =
+      "RESTART GRID";
+
+    button.onclick =
+      ()=>location.reload();
+
+    return;
+
+  }
+
+  loadCase();
+
+}
+
+/* =========================================
+   LOAD CASE
+========================================= */
+
+function loadCase(){
+
+  const c =
+    CASES[current];
+
+  document.getElementById(
+    "caseTitle"
+  ).textContent =
+    c.title;
+
+  document.getElementById(
+    "caseDescription"
+  ).textContent =
+    c.description;
+
+  document.getElementById(
+    "clues"
+  ).innerHTML =
+    c.clues.map(
+      (text,index)=>
+        `<div
+          class="clue"
+          id="clue${index}"
+        >
+          🔒 ${text}
+        </div>`
+    ).join("");
+
+  document.getElementById(
+    "caseProgress"
+  ).style.width =
+    "0%";
+
+  visionMode = 0;
+
+  setZoom(1);
+
+  document
+    .getElementById(
+      "worldScene"
+    )
+    .classList.remove(
+      "nv",
+      "thermal"
+    );
+
+  switchCamera(
+    c.camera
+  );
+
+  setInfo(
+    "New operation loaded. Review evidence and begin search."
+  );
+
+}
+
+/* =========================================
+   INFO
+========================================= */
+
+function setInfo(
+  message
+){
+
+  document.getElementById(
+    "info"
+  ).innerHTML =
+    message;
+
+}
+
+/* =========================================
+   UPDATE
+========================================= */
+
+function update(){
+
+  document.getElementById(
+    "score"
+  ).textContent =
+    score;
+
+  document.getElementById(
+    "streak"
+  ).textContent =
+    streak;
+
+  document.getElementById(
+    "alerts"
+  ).textContent =
+    alerts;
+
+}
+
+/* =========================================
+   START GAME
+========================================= */
+
+function startGame(){
+
+  document.getElementById(
+    "intro"
+  ).style.display =
+    "none";
+
+  document.getElementById(
+    "tutorial"
+  ).style.display =
+    "none";
+
+  document.getElementById(
+    "app"
+  ).style.display =
+    "grid";
+
+  updateViewportHeight();
+
+  buildSkyline();
+
+  buildCamButtons();
+
+  loadCase();
+
+  startTime =
+    Date.now();
+
+  update();
+
+  animate();
+
+}
+
+/* =========================================
+   KEYBOARD
+========================================= */
+
+document.addEventListener(
+  "keydown",
+  event=>{
+
+    if(
+      document.getElementById(
+        "intro"
+      ).style.display !== "none"
+    ){
+      return;
+    }
+
+    if(
+      document.getElementById(
+        "tutorial"
+      ).style.display !== "none"
+    ){
+      return;
+    }
+
+    if(
+      event.key >= "1" &&
+      event.key <= "8"
+    ){
+
+      switchCamera(
+        Number(event.key)
+      );
+
+    }
+
+    if(
+      event.key === "a" ||
+      event.key === "A"
+    ){
+      aiScan();
+    }
+
+    if(
+      event.key === "s" ||
+      event.key === "S"
+    ){
+      analyse();
+    }
+
+    if(
+      event.key === "n" ||
+      event.key === "N"
+    ){
+      toggleVision();
+    }
+
+    if(
+      event.key === "z" ||
+      event.key === "Z"
+    ){
+      zoomIn();
+    }
+
+    if(
+      event.key === "p" ||
+      event.key === "P"
+    ){
+      pingCamera();
+    }
+
+  }
+);
+
+</script>
+
+</body>
+</html>
+```
